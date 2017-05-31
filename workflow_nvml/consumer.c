@@ -1,3 +1,11 @@
+/* Copyright (c) 2017 The University of Edinburgh. */
+
+/* 
+* This software was developed as part of the                       
+* EC H2020 funded project NEXTGenIO (Project ID: 671951)                 
+* www.nextgenio.eu           
+*/
+
 #define _GNU_SOURCE
 
 #include <stdlib.h>
