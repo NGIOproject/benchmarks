@@ -1,0 +1,66 @@
+Copyright (c) 2017 The University of Edinburgh.
+
+This software was developed as part of the  
+EC H2020 funded project NEXTGenIO (Project ID: 671951)
+
+    http://www.nextgenio.eu
+
+Built on work from:
+
+Copyright (c) 2015 The University of Edinburgh.
+ 
+This software was developed as part of the                       
+EC FP7 funded project Adept (Project ID: 610490)                 
+    http://www.adept-project.eu                                            
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+## Building
+
+The build system for the micro-benchmarks consists of a Makefile and platform-specific
+.inc files that are located in the platform_inc directory. The .inc file specifies
+compiler and linker flags as well as preprocessor macros. The directory includes a 
+generic .inc file for a standard Linux platform and GCC for reference. You can create
+a new .inc file for your system - the naming convention is ${ARCH}_${CC}_${OPT}.inc, 
+where:
+
+- ARCH denotes the system, e.g. generic, linux, mac, cray, pmem
+- CC is the compiler
+- OPT specifies whether an optimised or debug version should be built
+
+In order to build using the default platform file, simply do
+
+%> make
+
+which is in fact short for
+
+%> make ARCH=generic CC=gcc OPT=opt
+
+Change the values of ARCH, CC or OPT to pick up different .inc files for your build
+process.
+
+
+## Executing
+
+If the build process was successful, you should have an executable called "micro". 
+
+Executing
+
+%> ./micro -h
+
+will display all the different benchmark options availble.
+
+%> ./micro -i
+
+will (on a Linux platform) give information on the system architecture and the data 
+type sizes, which is useful when interpreting the results of the benchmarks. 
