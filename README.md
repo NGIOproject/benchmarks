@@ -28,3 +28,16 @@ We are interested in evaluating both hardware performance, and software overhead
 
 The ngio-kernel-benchmarks directory contains level1 kernel benchmarks (build on ones originally developed for the Adept project (https://github.com/EPCCed/adept-kernel-openmp)).  Of particular interest for I/O is the file parse benchmark, which does file operations either using linux posix functionality or the pmem.io library.
 
+
+# NEXTGenIO Micro Benchmarks - Serial
+
+The ngio-micro-benchmarks directory contains level0 micro benchmarks (build on
+ones originally developed for the Adept project
+(https://github.com/EPCCed/adept-micro-openmp)).  Of particular interest for
+I/O are the file benchmarks, which evaluate the costs of file open and
+writing/reading in various different modes, using linux posix functionality or
+the pmem.io library.
+
+The memory benchmarks have also been extended to use the vmem functionality
+from pmem.io to use memory on a non-volatile device rather than standard main memory.
+
