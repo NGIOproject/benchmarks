@@ -28,6 +28,7 @@
 int main(int argc, char **argv){
   struct timespec start, end;
 
+  char *path;
   char name[100] = "";
   int size = 0;
   char *data = NULL, *pmemaddr = NULL;
@@ -42,13 +43,16 @@ int main(int argc, char **argv){
   size = sizeof(char);
   data = (char*) malloc(N * size);
 
-  if ( argc != 3 )  {
-    fprintf(stderr, "ERROR: incorrect usage (repetitions number_of_files).\n");
+  if ( argc != 4 )  {
+    fprintf(stderr, "ERROR: incorrect usage (repetitions number_of_files path).\n");
     return -10;
   }
 
   rep = atoi(argv[1]);
   n_files = atoi(argv[2]);
+  path = argv[3];
+
+  sprintf(path+strlen(path), "/testfile");
 
   if (!data) {
     fprintf(stderr, "ERROR: out of memory in file_write\n");
@@ -57,15 +61,18 @@ int main(int argc, char **argv){
   memset(data, '6', N * size);
   memset(&data[0], '1', size);
   memset(&data[(N * size) - 1], '1', size);
-  sprintf(titlebuffer, "Writing %d files of %lu bytes", n_files, (unsigned long) (N*size*rep));
+  sprintf(titlebuffer, "Writing %d files of %lu bytes to directory %s", n_files, (unsigned long) (N*size*rep), path);
 
   /* do actual write test */
   clock_gettime(CLOCK_MONOTONIC, &start);
 
+ 
   /* loop over number of files */
   for(i=0;i<n_files;i++){
-    sprintf(name, "testfile_%d",i);
-    
+
+    strcpy(name,path);
+    sprintf(name+strlen(name), "_%d", i);
+
     if ((pmemaddr = pmem_map_file(name, rep * N * size,
                              PMEM_FILE_CREATE|PMEM_FILE_EXCL,
                              0666, &mapped_len, &is_pmem)) == NULL) {
@@ -73,16 +80,26 @@ int main(int argc, char **argv){
                                   fprintf(stderr, "Failed to pmem_map_file for filename:%s.\n", name);
                                   exit(-100);
                                 }
-    
-    /* loop over chunks */
-    for(j=0; j<rep; j++){
-      pmem_memcpy_nodrain(pmemaddr, data, N * size);
-      pmemaddr += N * size;
+
+    if(is_pmem){
+
+      /* loop over chunks */
+      for(j=0; j<rep; j++){
+        pmem_memcpy_nodrain(pmemaddr, data, N * size);
+        pmemaddr += N * size;
+      }
+
+      pmem_drain();
+      pmemaddr -= rep * N * size;
+ 
+    }else{
+
+       printf("Not pmem\n");
+
     }
 
-    pmem_drain();
-    pmemaddr -= rep * N * size;
     pmem_unmap(pmemaddr, mapped_len);
+
   }
 
   clock_gettime(CLOCK_MONOTONIC, &end);

@@ -35,6 +35,7 @@ int main(int argc, char **argv){
   int N = 0, i = 0, j = 0, k = 0, rep = 0, is_pmem = 0;
   int n_files = 0;
   size_t mapped_len;
+  char *path;
 
   char titlebuffer[500] = "";
 
@@ -43,13 +44,16 @@ int main(int argc, char **argv){
   size = sizeof(char);
   data = (char *) malloc(N*size);
 
-  if ( argc != 3 )  {
-    fprintf(stderr, "ERROR: incorrect usage (repetitions number_of_files).\n");
+  if ( argc != 4 )  {
+    fprintf(stderr, "ERROR: incorrect usage (repetitions number_of_files path).\n");
     return -10;
   }
 
   rep = atoi(argv[1]);
   n_files = atoi(argv[2]);
+  path = argv[3];
+
+  sprintf(path+strlen(path), "/testfile");
 
   if (!data) {
     fprintf(stderr, "ERROR: out of memory\n");
@@ -57,7 +61,7 @@ int main(int argc, char **argv){
   }
   memset(data, '0', N * size);
 
-  sprintf(titlebuffer, "Reading %d files of %lu bytes", n_files, (unsigned long) (N*size*rep));
+  sprintf(titlebuffer, "Reading %d files of %lu bytes from directory %s", n_files, (unsigned long) (N*size*rep), path);
   int local_reps =  (rep * N * size) / BUF_LEN;
   int remainder = (rep * N * size) % BUF_LEN;
   printf("local_reps:%d, remainder:%d.\n", local_reps, remainder);
@@ -68,8 +72,9 @@ int main(int argc, char **argv){
   /* loop over number of files */
   for(i=0;i<n_files;i++){
 
-    sprintf(name, "testfile_%d", i);
-    
+    strcpy(name,path);
+    sprintf(name+strlen(name), "_%d", i);
+ 
     if ((pmemaddr = pmem_map_file(name, 0,
                              0,
                              0666, &mapped_len, &is_pmem)) == NULL) {
@@ -78,16 +83,19 @@ int main(int argc, char **argv){
                                   exit(-100);
                              }
 
+    if(is_pmem){
     /* loop over 1MB chunks */
 //    for(j=0; j<rep; j++){
 //      memcpy(data, pmemaddr, N * size);
 //      pmemaddr += N * size;
 //    }
-    for ( j = 0 ; j < local_reps ; j++ )  {
-      memcpy(data, pmemaddr, BUF_LEN);
-      pmemaddr += BUF_LEN;
-    }
-   
+      for ( j = 0 ; j < local_reps ; j++ )  {
+        memcpy(data, pmemaddr, BUF_LEN);
+        pmemaddr += BUF_LEN;
+      }
+   }else{
+      printf("Not pmem\n");
+   }
 //    pmemaddr -= rep * N * size;
     pmemaddr -= local_reps * BUF_LEN;
     pmem_unmap(pmemaddr, mapped_len);
@@ -99,7 +107,7 @@ int main(int argc, char **argv){
   data = (char *) realloc(data, rep * N * size);
   for ( i = 0 ; i < n_files ; i++ ) {
     memset(data, '0', rep * N * size);
-    sprintf(name, "testfile_%d", i);
+    sprintf(name, "/mnt/pmem12/benchmarks/testfile_%d", i);
 
     if ((pmemaddr = pmem_map_file(name, 0,
                              0,

@@ -25,6 +25,7 @@ int main(int argc, char **argv){
   
   struct timespec start, end;
 
+  char *path;
   char name[100] = "";
   int size = 0;
   char *data = NULL;
@@ -39,13 +40,16 @@ int main(int argc, char **argv){
   size = sizeof(char);
   data = (char *) malloc(N*size);
 
-  if ( argc != 3 )  {
-    fprintf(stderr, "ERROR: incorrect usage (repetitions number_of_files).\n");
+  if ( argc != 34)  {
+    fprintf(stderr, "ERROR: incorrect usage (repetitions number_of_files path).\n");
     return -10;
   }
 
   rep = atoi(argv[1]);
   n_files = atoi(argv[2]);
+  path = argv[3];
+
+  sprintf(path+strlen(path), "/testfile");
 
   if (!data) {
     fprintf(stderr, "ERROR: out of memory\n");
@@ -61,8 +65,9 @@ int main(int argc, char **argv){
   /* loop over number of files */
   for(i=0;i<n_files;i++){
 
-    sprintf(name, "testfile_%d", i);
-    
+    strcpy(name,path);
+    sprintf(name+strlen(name), "_%d", i);
+
     fd = open(name, O_RDONLY);
     if (fd < 0) {
       fprintf(stderr, "ERROR: unable to open test file for reading\n");
