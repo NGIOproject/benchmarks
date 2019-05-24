@@ -40,7 +40,7 @@ int main(int argc, char **argv){
   size = sizeof(char);
   data = (char *) malloc(N*size);
 
-  if ( argc != 34)  {
+  if ( argc != 4)  {
     fprintf(stderr, "ERROR: incorrect usage (repetitions number_of_files path).\n");
     return -10;
   }
