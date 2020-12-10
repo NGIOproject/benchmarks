@@ -116,6 +116,7 @@ int main(int argc, char *argv[]){
   clock_gettime(CLOCK_MONOTONIC, &start);
   for(i=0; i<repeats; i++){
     copy(a,b,array_size);
+    pmem_persist(pmemaddr, array_size*array_element_size);
   }
   clock_gettime(CLOCK_MONOTONIC, &end);
   strcpy(title, "Copy");
@@ -176,7 +177,6 @@ void copy(double *a, double *b, long int array_size){
   for (j=0; j<array_size; j++){
     b[j] = a[j];
   }
-
   return;
 }
  
